@@ -24,8 +24,9 @@ public class Server {
             while(true){
                 System.out.println("[Client Waiting]");
                 Socket socket = serverSocket.accept();
-                ServerThread ServerThread = new ServerThread(socket);
-                ServerThread.start();
+                System.out.println("[Client Connected]");
+                ServerThread serverThread = new ServerThread(socket);
+                serverThread.start();
             }
         } catch (IOException e) {
             logger.error("[IOExcption]", e);

@@ -1,2 +1,4 @@
 rootProject.name = "HTTPserver"
 include("Server")
+include 'Share'
+
