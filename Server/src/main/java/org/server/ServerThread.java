@@ -43,63 +43,67 @@ public class ServerThread extends Thread {
                 System.out.println(url);
                 String version = requestLineArray[2];
 
+
+                String getUrlId = splitUrlId(url);
                 switch (method) {
-                    case "GET":
-                        if(url.contains("text")){
-                            String getUrlId = splitUrlId(url);
-                            if(getUrlId.isEmpty()){//text id가 없을때
+                    case "GET" -> {
+                        if (url.contains("textall")) {
+                            if (textMap.isEmpty()) {
+                                MakeNoContentsResponseMessage(out);
+                                break;
+                            }
+                            GetMethod(out, null, "textall");
+                        } else if (url.contains("text")) {
+                            if (getUrlId.isEmpty()) {//text id가 없을때
                                 MakeFailResponseMessage(out);
                                 break;
                             }
                             String[] urlIdArray = getUrlId.split(",");
-                            GetMethod(out,urlIdArray,"text");
+                            GetMethod(out, urlIdArray, "text");
 
-                        }else if(url.contains("image")){
-                            String getUrlId = splitUrlId(url);
+                        } else if (url.contains("image")) {
                             String[] urlIdArray = getUrlId.split(",");
-                            if(getUrlId.isEmpty()){ //image id가 없을때
+                            if (getUrlId.isEmpty()) { //image id가 없을때
                                 MakeFailResponseMessage(out);
                                 break;
                             }
-                            GetMethod(out, urlIdArray,"image");
-                        }else if(url.contains("time")) {
+                            GetMethod(out, urlIdArray, "image");
+                        } else if (url.contains("time")) {
                             GetMethod(out, null, "time");
-                        }else{
+                        } else {
                             MakeFailResponseMessage(out);
                         }
-                        break;
-
-                    case "POST":
-                        String PostUrlId = splitUrlId(url);
+                    }
+                    case "POST" -> {
                         String requestBody = readHTTPRequestBody(bufferedReader);
-                        if(url.contains("text")){
-                            PostMethod(out, PostUrlId,requestBody,"text");
-                        }else if(url.contains("image")){
-                            PostMethod(out, PostUrlId,requestBody,"image");
-                        }else{
+                        if (getUrlId.isEmpty()) {//text id가 없을때
+                            MakeFailResponseMessage(out);
+                            break;
+                        }
+                        if (url.contains("text")) {
+                            PostMethod(out, getUrlId, requestBody, "text");
+                        } else if (url.contains("image")) {
+                            PostMethod(out, getUrlId, requestBody, "image");
+                        } else {
                             MakeFailResponseMessage(out);
                         }
-                        break;
-
-                    case "DELETE":
-                        if(url.contains("text")){
-                            String DeleteUrlId = splitUrlId(url);
-                            if(DeleteUrlId.isEmpty()){//text id가 없을때
+                    }
+                    case "DELETE" -> {
+                        if (url.contains("text")) {
+                            if (getUrlId.isEmpty()) {//text id가 없을때
                                 MakeFailResponseMessage(out);
                                 break;
                             }
-                            String[] DeleteIds = DeleteUrlId.split(",");
-                            DeleteMethod(out, DeleteIds,"text");
-                        }else if(url.contains("image")){
+                            String[] DeleteIds = getUrlId.split(",");
+                            DeleteMethod(out, DeleteIds, "text");
+                        } else if (url.contains("image")) {
                             //아직 미구현
-                        }else{
+                        } else {
                             MakeFailResponseMessage(out);
                         }
-                        break;
-
-                    default: //메서드가 아무것도없을때 4xx에러
-                        MakeFailResponseMessage(out);
-                        break;
+                    }
+                    default -> //메서드가 아무것도없을때 4xx에러
+                            MakeFailResponseMessage(out);
                 }
             }
         } catch (IOException e) {
@@ -114,12 +118,18 @@ public class ServerThread extends Thread {
     }
 
     public String splitUrlId(String url) {
-        if (url.startsWith("/text")) {
+        if (url.contains("/text/")) {
+            if(url.substring(6).isEmpty()){
+                return "";
+            }
             return url.substring(6);
-        } else if (url.startsWith("/image")) {
+        } else if (url.contains("/image/")) {
+            if(url.substring(7).isEmpty()){
+                return "";
+            }
             return url.substring(7);
         } else {
-            throw new IllegalArgumentException("Invalid URL format");
+            return "";
         }
     }
 
