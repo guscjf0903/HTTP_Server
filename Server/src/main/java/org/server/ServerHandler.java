@@ -50,7 +50,7 @@ public class ServerHandler {
             }
             case "image" -> {
                 for (String id : urlid) {
-                    File file = new File("/Users/hyunchuljung/Desktop/ServerFolder/" + id);
+                    File file = new File("/home/http_server/httpimagesave/" + id);
                     System.out.println(id);
                     if (!file.exists()) { //만약 경로에 image가 없을때 404에러
                         System.out.println("??");
